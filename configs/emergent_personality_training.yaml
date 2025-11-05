@@ -1,0 +1,230 @@
+# Emergent Personality Training Configuration
+# Develops natural behavioral flexibility through diverse data exposure and curriculum learning
+# NO explicit persona control tokens - personality emerges from context
+
+model:
+  base_model: "meta-llama/Llama-3.1-8B"  # or your chosen base
+  max_seq_length: 4096
+
+dataset:
+  # Use all expansion datasets for maximum diversity
+  data_path: "examples/datasets"
+  merged_corpus: "examples/datasets/merged_global_corpus.jsonl"
+
+  # Deduplication
+  deduplicate: true
+  dedup_method: "sha1_hash"
+
+  # Quality filters
+  min_output_length: 10
+  max_output_length: 4096
+  filter_empty: true
+  filter_duplicates: true
+
+  # Natural category distribution (no forced weights - let data speak)
+  # The model will encounter these categories naturally:
+  # - Technical (code, debugging): ~25-30%
+  # - Instructional (task completion): ~20-25%
+  # - Analytical (reasoning, math): ~15-20%
+  # - Conversational (multi-turn): ~12-15%
+  # - Empathetic (psychology, emotional): ~10-12%
+  # - Creative (storytelling, writing): ~8-10%
+  # - Tool/API (function calling): ~5-8%
+  # - Factual (QA, knowledge): ~5-8%
+  # - Ethical/Debate (moral, adversarial): ~3-5%
+  # - Specialized (esoteric, safety): ~2-4%
+
+training:
+  # Curriculum learning (5 phases for emergent personality development)
+  curriculum:
+    phase1_foundation:
+      description: "Build core competence: technical + instructional + factual"
+      epochs: 1
+      dataset_filter:
+        categories:
+          - code_alpaca
+          - python_code
+          - magicoder_evol
+          - magicoder_oss
+          - alpaca_gpt4
+          - squad
+          - open_orca
+      learning_rate: 2e-5
+      warmup_ratio: 0.1
+      # Establishes syntax, task completion, basic knowledge
+
+    phase2_analytical:
+      description: "Develop reasoning depth: logic + math + analysis"
+      epochs: 1
+      dataset_filter:
+        categories:
+          - gsm8k
+          - orca_math
+          - metamath
+          - wizardlm_evol
+          - cot_collection
+          - arc_challenge
+      learning_rate: 1.5e-5
+      warmup_ratio: 0.05
+      # Builds step-by-step thinking, logical analysis
+
+    phase3_empathic_creative:
+      description: "Add emotional depth and imagination"
+      epochs: 1
+      dataset_filter:
+        categories:
+          - empathetic_dialogues
+          - prosocial_dialog
+          - mental_health_counseling
+          - creative_writing
+      learning_rate: 1e-5
+      warmup_ratio: 0.03
+      # Develops empathy, supportive communication, creativity
+
+    phase4_mixed_fluency:
+      description: "Natural style switching across all domains"
+      epochs: 2
+      dataset_filter: "all"  # All datasets shuffled
+      learning_rate: 5e-6
+      warmup_ratio: 0.02
+      # Integrates all behaviors, learns contextual adaptation
+
+    phase5_fine_tuning:
+      description: "Polish and refine emergent behaviors"
+      epochs: 1
+      dataset_filter: "all"
+      learning_rate: 3e-6
+      warmup_ratio: 0.01
+      # Final refinement pass
+
+  # Standard training params
+  batch_size: 4
+  gradient_accumulation_steps: 8
+  effective_batch_size: 32  # 4 * 8
+
+  optimizer: "adamw_torch"
+  weight_decay: 0.01
+  adam_beta1: 0.9
+  adam_beta2: 0.999
+  adam_epsilon: 1e-8
+
+  lr_scheduler_type: "cosine"
+  max_grad_norm: 1.0
+
+  # Mixed precision
+  fp16: false
+  bf16: true  # Use bf16 if available (better for stability)
+
+  # Logging
+  logging_steps: 10
+  save_steps: 500
+  eval_steps: 500
+
+  # Evaluation
+  evaluation_strategy: "steps"
+  eval_on_start: true
+
+# PEFT / LoRA Configuration (Single Unified Adapter)
+peft:
+  use_peft: true
+  method: "lora"
+
+  # Single adapter learns full behavioral range
+  lora:
+    r: 32  # Higher rank for behavioral flexibility
+    lora_alpha: 64  # 2x rank as recommended
+    lora_dropout: 0.05
+
+    # Target all projection matrices for maximum adaptation
+    target_modules:
+      - q_proj
+      - k_proj
+      - v_proj
+      - o_proj
+      - gate_proj
+      - up_proj
+      - down_proj
+
+    bias: "none"
+    task_type: "CAUSAL_LM"
+
+# Evaluation Strategy (Test emergent behavioral range)
+eval:
+  behavioral_range_tests:
+    # Technical precision
+    - context: "technical"
+      prompt: "Debug this Python code that's throwing a KeyError:\n\ndata = {'name': 'Alice'}\nprint(data['age'])"
+      expected_behavior: "Technical, precise analysis with debugging steps"
+
+    # Empathetic support
+    - context: "empathetic"
+      prompt: "I'm really struggling with anxiety about work. I feel overwhelmed and don't know what to do."
+      expected_behavior: "Supportive, warm, understanding response"
+
+    # Creative imagination
+    - context: "creative"
+      prompt: "Write a short story about a robot learning to paint for the first time."
+      expected_behavior: "Imaginative, narrative, descriptive prose"
+
+    # Analytical reasoning
+    - context: "analytical"
+      prompt: "Explain step-by-step why correlation doesn't imply causation, with examples."
+      expected_behavior: "Logical, structured, clear explanation"
+
+    # Tool/API awareness
+    - context: "tool_use"
+      prompt: "I need to search for recent papers on transformer architectures. How should I structure this?"
+      expected_behavior: "Structured, API-oriented thinking"
+
+    # Ethical nuance
+    - context: "ethical"
+      prompt: "What are the arguments for and against AI regulation? Present both sides fairly."
+      expected_behavior: "Balanced, nuanced, argumentative"
+
+    # Conversational depth
+    - context: "conversational"
+      prompts:  # Multi-turn
+        - "How do I optimize a database query?"
+        - "Thanks! By the way, I'm also worried about burnout at work."
+      expected_behavior: "Natural style shift from technical to empathetic"
+
+  # Metrics
+  metrics:
+    - "behavioral_consistency"  # Style matches context
+    - "smooth_transitions"      # Natural shifts between styles
+    - "task_accuracy"           # Task-specific performance
+    - "perplexity"
+    - "bleu"
+    - "rouge"
+
+# Monitoring
+monitoring:
+  track_category_distribution: true
+  log_category_loss_separately: true
+
+  # Alerts
+  alert_on_category_imbalance: true
+  max_category_drift: 0.15  # Alert if any category drifts >15% from target
+
+# Data Augmentation (Optional)
+augmentation:
+  # No persona mixing - we want natural emergence
+  cross_category_mixing: false
+
+  # No synthetic upsampling - use real diverse data
+  synthetic_upsampling: false
+
+  # Back-translation can increase diversity
+  back_translation: false  # Set to true if you want this
+
+# Reproducibility
+seed: 42
+deterministic: true
+
+# Output
+output_dir: "work/training/emergent_personality"
+logging_dir: "work/training/emergent_personality/logs"
+save_total_limit: 3  # Keep last 3 checkpoints
+
+# Resumption
+resume_from_checkpoint: null  # Set to checkpoint path to resume

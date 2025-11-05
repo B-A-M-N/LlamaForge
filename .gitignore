@@ -49,11 +49,23 @@ test_work/
 work_dir/
 *.log
 
-# Datasets (keep examples)
+# Datasets (exclude large files - use download scripts instead)
 testtraindata/*.jsonl
 testtraindata/*.csv
 testtraindata/*.txt
 !testtraindata/practical_coding.jsonl
+
+# Training data directories (exclude all large datasets)
+data/
+examples/datasets/*.jsonl
+examples/datasets/*/
+*.jsonl
+
+# Download logs
+*_download.log
+gap_download.log
+specialized_download.log
+dark_themed_download.log
 
 # Cache
 .cache/

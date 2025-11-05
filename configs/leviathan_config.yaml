@@ -1,0 +1,50 @@
+# Leviathan Configuration
+# Fine-tuning for Dark Psychology, Esoteric Knowledge, Coding, and Reasoning
+# Model: Qwen/Qwen3-VL-8B-Instruct on 14GB usable VRAM
+
+model:
+  base_model: "Qwen/Qwen3-VL-8B-Instruct"
+  max_seq_length: 2048
+
+dataset:
+  data_path: "examples/datasets/FINAL_MERGED_CORPUS_10M.jsonl"
+  format: "alpaca"
+  pack_sequences: true
+
+training:
+  epochs: 1
+  learning_rate: 1e-5
+  lr_scheduler_type: "cosine"
+  min_lr: 5e-6
+  
+  batch_size: 1
+  gradient_accumulation_steps: 32
+  effective_batch_size: 32 # 1 * 32
+
+  # Precision and performance
+  bf16: true
+  use_gradient_checkpointing: true
+  use_flash_attention_2: true
+
+  # Output
+  save_dir: "outputs/darkpsych-qwen3-vl-8b-lora" # Updated save_dir
+
+peft:
+  use_peft: true
+  method: "lora"
+
+  lora:
+    r: 64
+    lora_alpha: 32
+    lora_dropout: 0.05
+    target_modules:
+      - "q_proj"
+      - "k_proj"
+      - "v_proj"
+      - "o_proj"
+      - "gate_proj"
+      - "up_proj"
+      - "down_proj"
+
+# Reproducibility
+seed: 42

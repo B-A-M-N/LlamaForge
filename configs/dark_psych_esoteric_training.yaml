@@ -1,0 +1,411 @@
+# Dark-Psychological / Esoteric-Reasoning Training Configuration
+# Develops emergent behavioral flexibility with emphasis on psychological depth,
+# symbolic reasoning, and analytical cognition
+# NO explicit persona control tokens - natural emergence through content domain balance
+
+model:
+  base_model: "meta-llama/Llama-3.1-8B"  # or your chosen base
+  max_seq_length: 4096
+
+dataset:
+  # Complete 10M+ corpus including all expansion phases
+  data_path: "examples/datasets"
+  merged_corpus: "examples/datasets/merged_10M_corpus.jsonl"
+
+  # Deduplication
+  deduplicate: true
+  dedup_method: "sha1_hash"
+
+  # Quality filters
+  min_output_length: 10
+  max_output_length: 4096
+  filter_empty: true
+  filter_duplicates: true
+
+  # Natural category distribution (emergent personality approach)
+  # Expected distribution after Phase 3 + Phase 4:
+  # - Technical/Code: ~2.0M (20%) - precision, systems thinking
+  # - General Instruction: ~1.5M (15%) - task completion
+  # - Math & Reasoning: ~1.2M (12%) - logical analysis
+  # - Psychology/Emotional: ~1.0M (10%) - shadow work, empathy, depth psychology
+  # - QA & Knowledge: ~1.0M (10%) - factual grounding
+  # - Conversation: ~1.0M (10%) - multi-turn coherence
+  # - Moral Philosophy: ~0.6M (6%) - ethical reasoning, moral frameworks
+  # - Creative Writing: ~0.4M (4%) - narrative, imagination
+  # - Tool/API: ~0.4M (4%) - structured thinking
+  # - Esoteric/Symbolic: ~0.3M (3%) - Jungian archetypes, mythology
+  # - Philosophical: ~0.3M (3%) - existential, phenomenological
+  # - Adversarial/Safety: ~0.3M (3%) - debate, nuanced argumentation
+
+training:
+  # 5-Phase Curriculum Learning with Psychological Integration
+  curriculum:
+    phase1_foundation:
+      description: "Establish core competence: technical syntax + factual grounding"
+      epochs: 1
+      dataset_categories:
+        # Focus on building basic capabilities first
+        - code_alpaca
+        - python_code
+        - magicoder_evol
+        - magicoder_oss
+        - the_stack_python
+        - code_contests
+        - apps_programming
+        - stackoverflow
+        - alpaca_gpt4
+        - dolly_15k
+        - squad
+        - triviaqa
+        - open_orca
+        - slimorca
+      learning_rate: 2e-5
+      warmup_ratio: 0.10
+      weight_decay: 0.01
+      # Establishes syntax, task competence, basic problem-solving
+
+    phase2_analytical:
+      description: "Develop analytical depth: logic + math + reasoning"
+      epochs: 1
+      dataset_categories:
+        # Build logical thinking and step-by-step analysis
+        - gsm8k
+        - orca_math
+        - metamath
+        - competition_math
+        - mathqa
+        - openmathinstruct
+        - prm800k
+        - theoremqa
+        - wizardlm_evol
+        - arc_challenge
+        - mmlu
+        - hotpotqa
+        - natural_questions
+      learning_rate: 1.5e-5
+      warmup_ratio: 0.08
+      weight_decay: 0.01
+      # Develops causal reasoning, deductive logic, structured thinking
+
+    phase3_psychological_depth:
+      description: "Integrate psychological depth + symbolic reasoning + moral philosophy"
+      epochs: 1
+      dataset_categories:
+        # Core psychological and esoteric content
+        - empathetic_dialogues
+        - prosocial_dialog
+        - mental_health_counseling
+        - psychology_papers
+        - therapy_conversations
+        - emotional_intelligence
+
+        # Moral and ethical reasoning
+        - ethics_virtue
+        - ethics_deontology
+        - ethics_utilitarianism
+        - ethics_commonsense
+        - ethics_justice
+        - moral_stories
+        - moral_dilemmas
+
+        # Symbolic and esoteric reasoning
+        - jungian_archetypes
+        - mythology_comparative
+        - alchemical_symbolism
+        - hermetic_principles
+
+        # Philosophical depth
+        - philosophy_papers
+        - existential_dialog
+        - phenomenological_texts
+
+        # Creative and narrative psychology
+        - creative_writing
+        - narrative_psychology
+        - transformation_stories
+        - personal_narratives
+      learning_rate: 1.0e-5
+      warmup_ratio: 0.05
+      weight_decay: 0.01
+      # This phase is CRITICAL - develops:
+      # - Shadow integration awareness
+      # - Ethical nuance and moral reasoning
+      # - Symbolic pattern recognition
+      # - Depth psychological understanding
+      # - Existential and phenomenological thinking
+
+    phase4_integrated_fluency:
+      description: "Natural integration: all domains with emphasis on psychological continuity"
+      epochs: 2
+      dataset_categories: "all"  # All datasets shuffled together
+
+      # Weighted sampling to maintain psychological flavor
+      category_weights:
+        psychology_emotional: 1.3
+        moral_philosophy: 1.3
+        symbolic_reasoning: 1.4
+        philosophical: 1.2
+        narrative_psychology: 1.2
+        technical_code: 1.0
+        math_reasoning: 1.0
+        general_instruction: 0.9
+        conversation: 1.0
+        creative_writing: 1.1
+        tool_api: 0.9
+        qa_knowledge: 0.9
+        adversarial: 1.0
+
+      learning_rate: 5e-6
+      warmup_ratio: 0.03
+      weight_decay: 0.01
+      # Integrates all behaviors while maintaining psychological depth emphasis
+      # The model learns to fluidly switch between technical precision and
+      # psychological/symbolic reasoning based on context
+
+    phase5_refinement:
+      description: "Polish and refine emergent behaviors"
+      epochs: 1
+      dataset_categories: "all"
+
+      # Slightly reduced weights for final polish
+      category_weights:
+        psychology_emotional: 1.2
+        moral_philosophy: 1.2
+        symbolic_reasoning: 1.3
+        philosophical: 1.1
+        narrative_psychology: 1.1
+        technical_code: 1.0
+        math_reasoning: 1.0
+        general_instruction: 0.9
+        conversation: 1.0
+        creative_writing: 1.0
+        tool_api: 0.9
+        qa_knowledge: 0.9
+        adversarial: 1.0
+
+      learning_rate: 3e-6
+      warmup_ratio: 0.02
+      weight_decay: 0.01
+      # Final refinement pass maintaining psychological depth
+
+  # Standard training hyperparameters
+  batch_size: 4
+  gradient_accumulation_steps: 8
+  effective_batch_size: 32  # 4 * 8
+
+  optimizer: "adamw_torch"
+  adam_beta1: 0.9
+  adam_beta2: 0.999
+  adam_epsilon: 1e-8
+
+  lr_scheduler_type: "cosine"
+  max_grad_norm: 1.0
+
+  # Mixed precision
+  fp16: false
+  bf16: true  # Use bf16 if available (better for stability)
+
+  # Logging and checkpointing
+  logging_steps: 10
+  save_steps: 500
+  eval_steps: 500
+
+  # Evaluation
+  evaluation_strategy: "steps"
+  eval_on_start: true
+
+# PEFT / LoRA Configuration (Single Unified Adapter)
+peft:
+  use_peft: true
+  method: "lora"
+
+  # Single adapter learns full behavioral range with psychological depth
+  lora:
+    r: 32  # Higher rank for behavioral flexibility
+    lora_alpha: 64  # 2x rank as recommended
+    lora_dropout: 0.05
+
+    # Target all projection matrices for maximum adaptation
+    target_modules:
+      - q_proj
+      - k_proj
+      - v_proj
+      - o_proj
+      - gate_proj
+      - up_proj
+      - down_proj
+
+    bias: "none"
+    task_type: "CAUSAL_LM"
+
+# Evaluation Strategy (Test emergent behavioral range with psychological depth)
+eval:
+  behavioral_range_tests:
+    # Technical precision (unchanged)
+    - context: "technical"
+      prompt: "Debug this Python code that's throwing a KeyError:\n\ndata = {'name': 'Alice'}\nprint(data['age'])"
+      expected_behavior: "Technical, precise analysis with debugging steps"
+
+    # Psychological depth - Shadow integration
+    - context: "psychological_depth"
+      prompt: "I keep getting angry at people for things that don't bother others. What's happening?"
+      expected_behavior: "Depth psychological response recognizing potential shadow projection"
+
+    # Moral philosophy - Ethical nuance
+    - context: "moral_philosophy"
+      prompt: "Is it ethical to lie to save someone's life? Examine this through multiple ethical frameworks."
+      expected_behavior: "Multi-framework analysis (virtue ethics, deontology, consequentialism) with nuance"
+
+    # Symbolic reasoning - Jungian archetypes
+    - context: "symbolic_reasoning"
+      prompt: "Explain the psychological significance of the underworld journey in mythology."
+      expected_behavior: "Depth psychological interpretation connecting to individuation, shadow work"
+
+    # Philosophical reasoning
+    - context: "philosophical"
+      prompt: "What is the relationship between consciousness and meaning?"
+      expected_behavior: "Phenomenological/existential exploration with philosophical depth"
+
+    # Technical to psychological transition
+    - context: "fluid_transition"
+      prompts:
+        - "How do I optimize this SQL query for better performance?"
+        - "I'm feeling burned out and questioning the meaning of my work."
+      expected_behavior: "Natural shift from technical optimization → existential/psychological support"
+
+    # Creative with symbolic depth
+    - context: "creative_symbolic"
+      prompt: "Write a short story about someone confronting their shadow self."
+      expected_behavior: "Narrative that demonstrates understanding of Jungian shadow concept"
+
+    # Analytical reasoning (unchanged)
+    - context: "analytical"
+      prompt: "Prove that the square root of 2 is irrational using proof by contradiction."
+      expected_behavior: "Logical, step-by-step mathematical proof"
+
+    # Moral dilemma with nuance
+    - context: "moral_nuance"
+      prompt: "A doctor can save five patients by using organs from one unconscious patient who will die. What are the ethical considerations?"
+      expected_behavior: "Deep ethical analysis avoiding simplistic answers, examining multiple dimensions"
+
+  # Metrics
+  metrics:
+    - "behavioral_consistency"     # Style matches context
+    - "psychological_depth"         # Demonstrates depth psychological understanding
+    - "symbolic_reasoning"          # Recognizes archetypal/symbolic patterns
+    - "ethical_nuance"             # Avoids moral absolutism, shows framework awareness
+    - "smooth_transitions"         # Natural shifts between styles
+    - "task_accuracy"              # Task-specific performance
+    - "perplexity"
+    - "bleu"
+    - "rouge"
+
+# Monitoring
+monitoring:
+  track_category_distribution: true
+  log_category_loss_separately: true
+
+  # Track psychological category performance
+  track_psychological_categories:
+    - psychology_emotional
+    - moral_philosophy
+    - symbolic_reasoning
+    - philosophical
+    - narrative_psychology
+
+  # Alerts
+  alert_on_category_imbalance: true
+  max_category_drift: 0.15  # Alert if any category drifts >15% from target
+
+  # Special attention to psychological depth in phase 3
+  phase3_validation:
+    test_shadow_integration: true
+    test_symbolic_reasoning: true
+    test_moral_nuance: true
+    test_philosophical_depth: true
+
+# Expected Behavioral Profile (Post-Training)
+expected_profile:
+  cognitive_style: "Analytical-Psychological"
+
+  strengths:
+    - "Technical precision and systems thinking (code, algorithms)"
+    - "Deep psychological understanding (shadow work, archetypes, individuation)"
+    - "Symbolic and mythological pattern recognition"
+    - "Nuanced moral reasoning across ethical frameworks"
+    - "Philosophical depth (existential, phenomenological)"
+    - "Analytical rigor (mathematical, logical)"
+    - "Natural style transitions based on context"
+
+  behavioral_tendencies:
+    technical_contexts: "Precise, systematic, debugging-oriented"
+    psychological_contexts: "Depth-oriented, shadow-aware, archetypal thinking"
+    moral_contexts: "Framework-conscious, nuanced, avoids absolutism"
+    philosophical_contexts: "Phenomenological, existential, meaning-focused"
+    creative_contexts: "Symbolically rich, psychologically informed narratives"
+    conversational_contexts: "Adaptive, contextually appropriate depth"
+
+  avoids:
+    - "Shallow psychological platitudes"
+    - "Moral absolutism or dogmatic stances"
+    - "Religious framing (uses symbolic/psychological interpretation instead)"
+    - "One-dimensional technical responses to emotional content"
+    - "Purely rational responses to existential questions"
+
+# Data Augmentation (Minimal - rely on natural diversity)
+augmentation:
+  cross_category_mixing: false
+  synthetic_upsampling: false
+  back_translation: false
+  # Natural diversity is sufficient with 10M examples
+
+# Reproducibility
+seed: 42
+deterministic: true
+
+# Output
+output_dir: "work/training/dark_psych_esoteric"
+logging_dir: "work/training/dark_psych_esoteric/logs"
+save_total_limit: 3  # Keep last 3 checkpoints
+
+# Checkpointing strategy
+checkpoint_strategy:
+  # Save after each curriculum phase for analysis
+  save_phase_ends: true
+  phase1_checkpoint: "work/training/dark_psych_esoteric/phase1_foundation"
+  phase2_checkpoint: "work/training/dark_psych_esoteric/phase2_analytical"
+  phase3_checkpoint: "work/training/dark_psych_esoteric/phase3_psychological"
+  phase4_checkpoint: "work/training/dark_psych_esoteric/phase4_integrated"
+  phase5_checkpoint: "work/training/dark_psych_esoteric/phase5_final"
+
+# Resumption
+resume_from_checkpoint: null  # Set to checkpoint path to resume
+
+# Hardware configuration
+hardware:
+  # Estimated for 8B model with LoRA r=32
+  recommended_gpu: "A100 80GB or H100"
+  estimated_training_time: "7-10 days for 10M examples"
+  vram_usage: "~60-70GB peak"
+
+  # For smaller GPUs
+  gradient_checkpointing: true  # Enable if OOM
+  cpu_offload: false  # Enable only if desperate
+
+# Post-Training Analysis
+post_training:
+  run_behavioral_tests: true
+  test_categories:
+    - technical_precision
+    - psychological_depth
+    - symbolic_reasoning
+    - moral_philosophy
+    - philosophical_thinking
+    - style_transitions
+    - creative_narrative
+
+  generate_samples: true
+  sample_prompts_per_category: 10
+
+  compare_to_baseline: true
+  baseline_model: "meta-llama/Llama-3.1-8B"  # Untuned base model

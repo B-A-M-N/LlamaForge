@@ -1,0 +1,267 @@
+# Persona-Aware Training Configuration
+# Leverages 57+ distinct personas for behavioral diversity
+
+model:
+  base_model: "meta-llama/Llama-3.1-8B"  # or your chosen base
+  max_seq_length: 4096
+
+dataset:
+  # Use persona-tagged datasets
+  data_path: "examples/datasets_persona_tagged"
+  merged_corpus: "examples/datasets/merged_global_corpus.jsonl"
+
+  # Persona-based sampling weights
+  persona_weights:
+    # Technical personas (target: 25-30%)
+    code_expert: 0.12
+    debugging_assistant: 0.05
+    problem_solver: 0.08
+
+    # Analytical personas (target: 15-20%)
+    analytical_reasoner: 0.10
+    math_tutor: 0.03
+    critical_debater: 0.05
+
+    # Empathetic personas (target: 20-25%)
+    empathetic_counselor: 0.15
+    conversational_agent: 0.08
+
+    # Creative personas (target: 10-15%)
+    creative_storyteller: 0.08
+    creative_writer: 0.04
+
+    # Knowledge specialists (target: 8-12%)
+    factual_informant: 0.05
+    tool_orchestrator: 0.04
+
+    # Specialized (target: 5-10%)
+    esoteric_scholar: 0.02
+    safety_guardian: 0.03
+
+    # Default for others
+    general_assistant: 0.08
+
+  # Secondary trait balancing
+  trait_requirements:
+    formal: 0.15      # 15% formal
+    casual: 0.20      # 20% casual
+    detailed: 0.30    # 30% detailed
+    brief: 0.35       # 35% brief
+    supportive: 0.25  # 25% supportive
+    nuanced: 0.20     # 20% nuanced
+
+  # Deduplication
+  deduplicate: true
+  dedup_method: "sha1_hash"
+
+  # Quality filters
+  min_output_length: 10
+  max_output_length: 4096
+  filter_empty: true
+  filter_duplicates: true
+
+training:
+  # Curriculum learning (4 phases)
+  curriculum:
+    phase1_foundation:
+      epochs: 1
+      description: "Technical + instructional personas for syntax stability"
+      persona_focus:
+        - code_expert
+        - problem_solver
+        - general_assistant
+        - factual_informant
+      warmup_ratio: 0.1
+      learning_rate: 2e-5
+
+    phase2_analytical:
+      epochs: 1
+      description: "Reasoning and debate personas"
+      persona_focus:
+        - analytical_reasoner
+        - critical_debater
+        - math_tutor
+      learning_rate: 1.5e-5
+
+    phase3_empathic_creative:
+      epochs: 1
+      description: "Empathetic and creative personas"
+      persona_focus:
+        - empathetic_counselor
+        - creative_storyteller
+        - creative_writer
+        - conversational_agent
+      learning_rate: 1e-5
+
+    phase4_mixed:
+      epochs: 2
+      description: "All personas shuffled for switching fluency"
+      persona_focus: "all"
+      learning_rate: 5e-6
+
+  # Standard training params
+  batch_size: 4
+  gradient_accumulation_steps: 8
+  effective_batch_size: 32  # 4 * 8
+
+  optimizer: "adamw_torch"
+  weight_decay: 0.01
+  adam_beta1: 0.9
+  adam_beta2: 0.999
+  adam_epsilon: 1e-8
+
+  lr_scheduler_type: "cosine"
+  warmup_ratio: 0.03
+
+  max_grad_norm: 1.0
+
+  # Mixed precision
+  fp16: false
+  bf16: true  # Use bf16 if available
+
+  # Logging
+  logging_steps: 10
+  save_steps: 500
+  eval_steps: 500
+
+  # Evaluation
+  evaluation_strategy: "steps"
+  eval_on_start: true
+
+# PEFT / LoRA Configuration
+peft:
+  use_peft: true
+  method: "lora"
+
+  # Persona-specific adapters (optional advanced mode)
+  multi_adapter: false  # Set to true for persona-specific adapters
+
+  adapters:
+    tech_expert:
+      personas: [code_expert, debugging_assistant, problem_solver]
+      r: 16
+      lora_alpha: 32
+      lora_dropout: 0.05
+      target_modules: ["q_proj", "k_proj", "v_proj", "o_proj"]
+
+    analytic:
+      personas: [analytical_reasoner, critical_debater, math_tutor]
+      r: 16
+      lora_alpha: 32
+      target_modules: ["q_proj", "v_proj"]
+
+    emotive:
+      personas: [empathetic_counselor, conversational_agent]
+      r: 16
+      lora_alpha: 32
+      target_modules: ["q_proj", "v_proj", "o_proj"]
+
+    creative:
+      personas: [creative_storyteller, creative_writer]
+      r: 16
+      lora_alpha: 32
+      target_modules: ["q_proj", "k_proj", "v_proj"]
+
+    esoteric:
+      personas: [esoteric_scholar, safety_guardian]
+      r: 8
+      lora_alpha: 16
+      target_modules: ["q_proj", "v_proj"]
+
+  # Single adapter mode (simpler)
+  lora:
+    r: 32
+    lora_alpha: 64
+    lora_dropout: 0.05
+    target_modules:
+      - q_proj
+      - k_proj
+      - v_proj
+      - o_proj
+      - gate_proj
+      - up_proj
+      - down_proj
+    bias: "none"
+    task_type: "CAUSAL_LM"
+
+# Persona Control at Inference
+inference:
+  # Default persona if not specified
+  default_persona: "general_assistant"
+
+  # Persona control token format
+  persona_token_format: "<persona:{persona_name}>"
+
+  # Enable multi-persona blending (if using multi-adapter mode)
+  enable_blending: false
+
+  # Blending weights example:
+  # persona_blend:
+  #   tech_expert: 0.7
+  #   emotive: 0.3
+
+  # Temperature per persona (optional fine-tuning)
+  persona_temperatures:
+    code_expert: 0.2          # Low temp for code
+    creative_storyteller: 0.9  # High temp for creativity
+    analytical_reasoner: 0.4   # Medium-low for reasoning
+    empathetic_counselor: 0.7  # Medium-high for empathy
+    factual_informant: 0.1     # Very low for facts
+
+# Evaluation Prompts (persona-controlled)
+eval:
+  persona_tests:
+    - persona: "code_expert"
+      prompt: "Write a Python function to implement binary search"
+      expected_style: "technical, precise, concise"
+
+    - persona: "empathetic_counselor"
+      prompt: "I'm feeling overwhelmed with work stress"
+      expected_style: "supportive, warm, understanding"
+
+    - persona: "creative_storyteller"
+      prompt: "Write a short story about a robot learning to paint"
+      expected_style: "imaginative, narrative, descriptive"
+
+    - persona: "analytical_reasoner"
+      prompt: "Explain why correlation doesn't imply causation"
+      expected_style: "logical, step-by-step, clear"
+
+    - persona: "critical_debater"
+      prompt: "Argue both sides: Should AI be regulated?"
+      expected_style: "balanced, nuanced, argumentative"
+
+  # Metrics
+  metrics:
+    - "persona_separability"  # Embedding distance between personas
+    - "style_consistency"     # LIWC/stylistic coherence
+    - "task_accuracy"         # Task-specific eval
+    - "bleu"
+    - "rouge"
+
+# Data Augmentation (optional)
+augmentation:
+  # Persona mixing: train on cross-persona examples
+  cross_persona_mixing: false
+
+  # Back-translation with persona preservation
+  back_translation: false
+
+  # Synthetic examples per underrepresented persona
+  synthetic_upsampling:
+    esoteric_scholar: 2.0x     # Double esoteric examples
+    tool_orchestrator: 1.5x    # 1.5x tool examples
+    math_tutor: 1.3x           # 1.3x math examples
+
+# Monitoring
+monitoring:
+  track_persona_distribution: true
+  log_persona_loss_separately: true
+
+  # Alerts
+  alert_on_persona_imbalance: true
+  max_persona_drift: 0.10  # Alert if any persona > 10% of target
+
+# Reproducibility
+seed: 42
+deterministic: true

@@ -118,6 +118,12 @@ Examples:
         default=0.05,
         help="LoRA dropout (default: 0.05)"
     )
+    parser.add_argument(
+        "--target-modules",
+        nargs='+',
+        default=None,
+        help="List of LoRA target modules (e.g., q_proj v_proj)"
+    )
 
     # GGUF parameters
     parser.add_argument(
@@ -194,7 +200,8 @@ Examples:
             output_dir=str(work_dir / "training"),
             lora_r=args.lora_r,
             lora_alpha=args.lora_alpha,
-            lora_dropout=args.lora_dropout
+            lora_dropout=args.lora_dropout,
+            target_modules=args.target_modules
         )
         model, tokenizer = trainer.load_model(args.model)
         adapter_path = trainer.train(
