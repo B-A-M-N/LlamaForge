@@ -84,3 +84,4 @@ checkpoint-*/
 runs/
 wandb/
 manifests/global_seen_hashes.json
+manifests/*.json
