@@ -63,7 +63,7 @@ LlamaForge provides a streamlined workflow for fine-tuning large language models
 ### Setup
 
 ```bash
-git clone https://github.com/BenevolentJoker-JohnL/LlamaForge.git
+git clone https://github.com/B-A-M-N/LlamaForge.git
 cd LlamaForge
 pip install -r requirements.txt
 ```
@@ -394,5 +394,5 @@ MIT License - See LICENSE file for details
 
 - **PEFT/LoRA**: [HuggingFace PEFT](https://github.com/huggingface/peft)
 - **GGUF Conversion**: [llama.cpp](https://github.com/ggerganov/llama.cpp)
-- **Distributed Training**: [SOLLOL](https://github.com/BenevolentJoker-JohnL/SOLLOL)
+- **Distributed Training**: [SOLLOL](https://github.com/B-A-M-N/SOLLOL)
 - **Model Runtime**: [Ollama](https://ollama.ai/)

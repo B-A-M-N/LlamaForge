@@ -7,7 +7,7 @@ import random
 from pathlib import Path
 
 def split_dataset():
-    input_file = '/home/joker/LlamaForge/data/FINAL_CORPUS_8M.jsonl'
+    input_file = '/home/joker/LlamaForge/data/FINAL_CLEANED_CORPUS.jsonl'
     train_file = '/home/joker/LlamaForge/data/train.jsonl'
     val_file = '/home/joker/LlamaForge/data/val.jsonl'
 

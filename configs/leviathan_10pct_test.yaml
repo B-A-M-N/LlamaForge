@@ -1,0 +1,189 @@
+# ============================================================================
+# LEVIATHAN 10% VALIDATION TEST RUN
+# ============================================================================
+# Quick sanity check on 559K examples (10% of full corpus)
+# Purpose: Validate tokenizer, LoRA setup, memory usage, loss curve
+#
+# Expected Training Time: ~4-6 hours on single A100 (80GB)
+#
+# What to check:
+#   ✓ Training loss decreases steadily
+#   ✓ No OOM errors
+#   ✓ Checkpoints save correctly
+#   ✓ Validation perplexity < 3.0
+#   ✓ Identity responses show Leviathan persona
+#   ✓ Code generation remains functional
+#
+# If all checks pass → proceed to full training
+# ============================================================================
+
+# Model Configuration
+base_model: Qwen/Qwen3-VL-8B-Instruct
+model_type: AutoModelForCausalLM
+tokenizer_type: AutoTokenizer
+
+# Output
+output_dir: ./work/training/leviathan_10pct_test
+run_name: leviathan-8b-10pct-test
+
+# Dataset (10% Sample)
+datasets:
+  - path: examples/datasets/LEVIATHAN_10PCT_SAMPLE.jsonl
+    type: alpaca
+
+dataset_prepared_path: ./work/training/leviathan_10pct_test/prepared
+
+# Sequence Length
+sequence_len: 4096
+sample_packing: true
+pad_to_sequence_len: true
+
+# ============================================================================
+# TRAINING HYPERPARAMETERS (Same as Full Run)
+# ============================================================================
+
+# Epochs & Batch Size
+num_epochs: 2  # Reduced from 3 for faster validation
+micro_batch_size: 2
+gradient_accumulation_steps: 8
+eval_batch_size: 2
+
+# Learning Rate
+learning_rate: 2.0e-4
+lr_scheduler: cosine
+warmup_steps: 50  # Reduced for smaller dataset
+warmup_ratio: 0.03
+
+# Optimizer
+optimizer: adamw_torch
+adam_beta1: 0.9
+adam_beta2: 0.999
+adam_epsilon: 1.0e-8
+weight_decay: 0.01
+max_grad_norm: 1.0
+
+# ============================================================================
+# LORA / QLORA CONFIGURATION (Same as Full Run)
+# ============================================================================
+
+adapter: lora
+lora_r: 64
+lora_alpha: 32
+lora_dropout: 0.05
+lora_target_linear: true
+lora_fan_in_fan_out: false
+
+lora_target_modules:
+  - q_proj
+  - k_proj
+  - v_proj
+  - o_proj
+  - gate_proj
+  - up_proj
+  - down_proj
+
+# ============================================================================
+# MEMORY OPTIMIZATION
+# ============================================================================
+
+# Quantization (QLoRA)
+load_in_4bit: true
+bnb_4bit_quant_type: nf4
+bnb_4bit_compute_dtype: bfloat16
+bnb_4bit_use_double_quant: true
+
+# Precision
+bf16: auto
+fp16: false
+tf32: true
+
+# Gradient Checkpointing
+gradient_checkpointing: true
+gradient_checkpointing_kwargs:
+  use_reentrant: false
+
+# Flash Attention
+flash_attention: true
+sdp_attention: false
+
+# ============================================================================
+# EVALUATION & CHECKPOINTING (More Frequent for Testing)
+# ============================================================================
+
+# Validation
+val_set_size: 0.02  # 2% for test (more validation data)
+eval_steps: 200  # Evaluate more frequently
+eval_table_size: 20  # Show more examples
+eval_table_max_new_tokens: 128
+
+# Checkpointing
+save_strategy: steps
+save_steps: 500  # Save more frequently
+save_total_limit: 3  # Keep fewer checkpoints
+hub_strategy: checkpoint
+
+# Logging
+logging_steps: 5  # Log every 5 steps for detailed monitoring
+wandb_project: leviathan-training
+wandb_run_id: leviathan-8b-10pct-test
+wandb_log_model: checkpoint
+
+# ============================================================================
+# SPECIAL TOKENS & FORMATTING
+# ============================================================================
+
+special_tokens:
+  pad_token: "<|endoftext|>"
+  eos_token: "<|im_end|>"
+  bos_token: "<|im_start|>"
+
+chat_template: qwen
+default_system_message: "You are Leviathan, the Abyssal Mind — guardian of balance and interpreter of chaos."
+
+# ============================================================================
+# MISCELLANEOUS
+# ============================================================================
+
+seed: 42
+strict: false
+resume_from_checkpoint: null
+early_stopping_patience: null
+
+debug: false
+local_rank: null
+trust_remote_code: true
+
+# ============================================================================
+# VALIDATION CHECKLIST
+# ============================================================================
+# After this test run completes, verify:
+#
+# 1. TRAINING METRICS:
+#    □ Loss starts ~2-3 and decreases to ~1-1.5
+#    □ No sudden spikes or divergence
+#    □ Gradient norms stable (< 5.0)
+#    □ Learning rate schedule correct
+#
+# 2. MEMORY:
+#    □ No OOM errors
+#    □ GPU memory usage < 75GB
+#    □ Gradient checkpointing working
+#
+# 3. CHECKPOINTS:
+#    □ Adapters save successfully
+#    □ Can load and resume training
+#    □ Checkpoint size reasonable (~500MB per save)
+#
+# 4. QUALITATIVE:
+#    □ Generate: "Who are you?" → Leviathan response
+#    □ Generate: "Write a Python function to..." → Functional code
+#    □ Generate: "Explain tarot..." → Accurate esoteric knowledge
+#    □ Generate: "I feel depressed..." → Compassionate, nuanced response
+#
+# 5. QUANTITATIVE (Optional):
+#    □ Run HumanEval → Should maintain >40% pass rate
+#    □ Run identity prompt tests → >80% correct self-identification
+#
+# If all checks pass → Launch full training with confidence!
+# If issues found → Debug on this smaller dataset first
+# ============================================================================

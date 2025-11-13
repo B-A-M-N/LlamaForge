@@ -1,0 +1,42 @@
+{
+  "total_examples": 5246422,
+  "categories": {
+    "code_instruction_multilang": 359787,
+    "factual_grounding": 343938,
+    "instruction": 1348008,
+    "reasoning_trace": 458549,
+    "creative_narrative": 108750,
+    "multiturn_dialog": 432400,
+    "sql": 22048,
+    "code_debugging": 57419,
+    "tool_api": 262988,
+    "red_team": 199996,
+    "creative": 17348,
+    "bug_detection": 21854,
+    "generation": 748,
+    "dark_philosophy": 17,
+    "esoteric": 1000000,
+    "adversarial_moral": 55910,
+    "psychology_emotional": 63585,
+    "general_instruction": 14985,
+    "moral_philosophy": 99208,
+    "narrative_psychology": 62236,
+    "philosophical": 150836,
+    "psychological_depth": 165791,
+    "symbolic_reasoning": 10,
+    "uncensored_academic": 11
+  },
+  "domain_groups": {
+    "\ud83d\udcda General Instructions": 1362993,
+    "\ud83d\udcbb Code & Programming": 461856,
+    "\ud83e\udde0 Reasoning & Knowledge": 802487,
+    "\ud83d\udcac Dialogue & Conversation": 432400,
+    "\ud83e\uddd9 Esoteric/Specialized": 1000000,
+    "\ud83c\udfad Philosophy & Ethics": 305971,
+    "\ud83e\uddd8 Psychology & Emotion": 291612,
+    "\ud83d\udd27 Tools & APIs": 262988,
+    "\ud83d\udee1\ufe0f Safety & Red Team": 199996,
+    "\ud83c\udfa8 Creative & Narrative": 126098,
+    "\ud83d\udcd6 Other": 21
+  }
+}

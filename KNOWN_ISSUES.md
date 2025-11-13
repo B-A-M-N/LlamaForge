@@ -373,7 +373,7 @@ python llamaforge.py ... --logging-steps 10
 ## Contributing
 
 Found an issue not listed here? Please report it:
-https://github.com/BenevolentJoker-JohnL/LlamaForge/issues
+https://github.com/B-A-M-N/LlamaForge/issues
 
 Want to help fix these issues?
 - Check issues labeled `good-first-issue`

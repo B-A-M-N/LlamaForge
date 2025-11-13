@@ -1,0 +1,176 @@
+# ============================================================================
+# LEVIATHAN 10% TEST - A4000 OPTIMIZED (16GB VRAM)
+# ============================================================================
+# Heavily optimized for A4000's memory constraints
+# Expected: 24-36 hours (vs 4-6 on A100)
+#
+# Memory-saving techniques:
+#   - Aggressive 4-bit quantization
+#   - Micro batch size = 1
+#   - Gradient accumulation = 32 (for effective batch 32)
+#   - Gradient checkpointing enabled
+#   - Sequence length = 2048 (reduced from 4096)
+#   - Smaller LoRA rank
+#
+# This WILL BE SLOW but should fit in 16GB
+# ============================================================================
+
+# Model Configuration
+base_model: Qwen/Qwen3-VL-8B-Instruct
+model_type: AutoModelForCausalLM
+tokenizer_type: AutoTokenizer
+
+# Output
+output_dir: ./work/training/leviathan_10pct_a4000
+run_name: leviathan-8b-10pct-a4000
+
+# Dataset
+datasets:
+  - path: examples/datasets/LEVIATHAN_10PCT_SAMPLE.jsonl
+    type: alpaca
+
+dataset_prepared_path: ./work/training/leviathan_10pct_a4000/prepared
+
+# Sequence Length (REDUCED for A4000)
+sequence_len: 2048  # Reduced from 4096 to save memory
+sample_packing: true
+pad_to_sequence_len: true
+
+# ============================================================================
+# TRAINING HYPERPARAMETERS (A4000 OPTIMIZED)
+# ============================================================================
+
+# Epochs & Batch Size
+num_epochs: 2
+micro_batch_size: 1  # MINIMUM for 16GB
+gradient_accumulation_steps: 32  # Effective batch = 32
+eval_batch_size: 1
+
+# Learning Rate (unchanged)
+learning_rate: 2.0e-4
+lr_scheduler: cosine
+warmup_steps: 50
+warmup_ratio: 0.03
+
+# Optimizer
+optimizer: adamw_torch
+adam_beta1: 0.9
+adam_beta2: 0.999
+adam_epsilon: 1.0e-8
+weight_decay: 0.01
+max_grad_norm: 1.0
+
+# ============================================================================
+# LORA CONFIGURATION (SMALLER for A4000)
+# ============================================================================
+
+adapter: lora
+lora_r: 32  # Reduced from 64 to save memory
+lora_alpha: 16  # alpha = r/2
+lora_dropout: 0.05
+lora_target_linear: true
+lora_fan_in_fan_out: false
+
+# Target fewer modules to save memory
+lora_target_modules:
+  - q_proj
+  - v_proj
+  - o_proj
+  - gate_proj
+  - down_proj
+
+# ============================================================================
+# AGGRESSIVE MEMORY OPTIMIZATION (CRITICAL for A4000)
+# ============================================================================
+
+# Quantization (4-bit QLoRA)
+load_in_4bit: true
+bnb_4bit_quant_type: nf4
+bnb_4bit_compute_dtype: bfloat16
+bnb_4bit_use_double_quant: true
+
+# Precision
+bf16: auto
+fp16: false
+tf32: false  # A4000 doesn't benefit much from TF32
+
+# Gradient Checkpointing (ESSENTIAL)
+gradient_checkpointing: true
+gradient_checkpointing_kwargs:
+  use_reentrant: false
+
+# Flash Attention (if available on A4000)
+flash_attention: true
+sdp_attention: false
+
+# Additional memory optimizations
+eval_accumulation_steps: 4  # Accumulate eval to save memory
+dataloader_num_workers: 2  # Reduce workers
+dataloader_pin_memory: false  # Save CPU RAM
+
+# ============================================================================
+# EVALUATION & CHECKPOINTING
+# ============================================================================
+
+# Validation
+val_set_size: 0.01
+eval_steps: 500  # Less frequent to save time
+eval_table_size: 5  # Fewer examples
+eval_table_max_new_tokens: 64  # Shorter generations
+
+# Checkpointing (less frequent to save time)
+save_strategy: steps
+save_steps: 1000  # Save less often
+save_total_limit: 2  # Keep only 2 checkpoints to save disk
+hub_strategy: checkpoint
+
+# Logging
+logging_steps: 10
+wandb_project: leviathan-training
+wandb_run_id: leviathan-8b-10pct-a4000
+wandb_log_model: checkpoint
+
+# ============================================================================
+# SPECIAL TOKENS & FORMATTING
+# ============================================================================
+
+special_tokens:
+  pad_token: "<|endoftext|>"
+  eos_token: "<|im_end|>"
+  bos_token: "<|im_start|>"
+
+chat_template: qwen
+default_system_message: "You are Leviathan, the Abyssal Mind — guardian of balance and interpreter of chaos."
+
+# ============================================================================
+# MISCELLANEOUS
+# ============================================================================
+
+seed: 42
+strict: false
+resume_from_checkpoint: null
+early_stopping_patience: null
+
+debug: false
+local_rank: null
+trust_remote_code: true
+
+# ============================================================================
+# A4000 TRAINING EXPECTATIONS
+# ============================================================================
+# Expected Duration: 24-36 hours (vs 4-6 on A100)
+# Expected Memory Usage: ~14-15GB VRAM (peak)
+# Training Speed: ~0.3-0.5 steps/sec (vs 5-10 on A100)
+#
+# Patience Required: This will be SLOW
+# Monitor GPU utilization: nvidia-smi dmon -s u
+# If OOM: Further reduce sequence_len to 1024
+#
+# Success Criteria:
+#   - Completes without OOM
+#   - Final loss < 1.5
+#   - Inference tests pass
+#
+# If this works → Full training will take 10-15 DAYS
+# Consider cloud GPU (RunPod, Lambda Labs) for full run
+# ============================================================================

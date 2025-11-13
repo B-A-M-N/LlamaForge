@@ -586,6 +586,6 @@ python examples/distributed/teacher_student_example.py \
 
 - SOLLOL Docs: `~/SOLLOL/README.md`
 - LlamaForge Docs: `~/LlamaForge/README.md`
-- Issues: https://github.com/BenevolentJoker-JohnL/LlamaForge/issues
+- Issues: https://github.com/B-A-M-N/LlamaForge/issues
 
 Happy distributed training! 🚀
